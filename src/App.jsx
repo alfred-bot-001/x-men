@@ -15,6 +15,12 @@ const NAV = [
 
 export default function App() {
   const [page, setPage] = useState('agents')
+  const [activeCaseId, setActiveCaseId] = useState(null)
+
+  const navigateToCase = (caseId) => {
+    setActiveCaseId(caseId)
+    setPage('case')
+  }
 
   return (
     <div className="flex h-screen bg-gray-950 text-gray-100 overflow-hidden">
@@ -72,8 +78,8 @@ export default function App() {
         {/* Content */}
         <div className="flex-1 overflow-auto">
           {page === 'agents' && <AgentManagement />}
-          {page === 'worklist' && <WorkList />}
-          {page === 'case' && <CaseDetail />}
+          {page === 'worklist' && <WorkList onCaseClick={navigateToCase} />}
+          {page === 'case' && <CaseDetail initialCaseId={activeCaseId} />}
           {page === 'dashboard' && <Dashboard />}
           {page === 'skills' && <SkillManagement />}
         </div>

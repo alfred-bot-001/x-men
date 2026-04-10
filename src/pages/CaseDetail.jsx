@@ -15,8 +15,9 @@ const RECOMMENDATION = {
   'CASE-2026-0046': { text: 'Escalate to L3', color: 'text-orange-400', bg: 'bg-orange-900/30 border-orange-800' },
 }
 
-export default function CaseDetail() {
-  const [selectedCase, setSelectedCase] = useState(CASES[0].id)
+export default function CaseDetail({ initialCaseId }) {
+  const defaultCase = initialCaseId || CASES[0]?.id
+  const [selectedCase, setSelectedCase] = useState(defaultCase)
   const [visibleSteps, setVisibleSteps] = useState([])
   const [streaming, setStreaming] = useState(false)
   const [feedback, setFeedback] = useState({})
@@ -28,6 +29,7 @@ export default function CaseDetail() {
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500) }
 
   const startStreaming = (caseId) => {
+    clearTimeout(timerRef.current)
     setVisibleSteps([])
     setStreaming(true)
     setDecision(null)
@@ -47,6 +49,13 @@ export default function CaseDetail() {
     timerRef.current = setTimeout(tick, 300)
   }
 
+  // Re-run when initialCaseId changes (navigation from WorkList)
+  useEffect(() => {
+    if (initialCaseId && initialCaseId !== selectedCase) {
+      setSelectedCase(initialCaseId)
+    }
+  }, [initialCaseId])
+
   useEffect(() => {
     startStreaming(selectedCase)
     return () => clearTimeout(timerRef.current)
@@ -64,7 +73,7 @@ export default function CaseDetail() {
   }
 
   return (
-    <div className="p-6 max-w-7xl h-full">
+    <div className="p-6">
       {toast && (
         <div className="fixed top-4 right-4 bg-gray-800 text-white text-sm px-4 py-2.5 rounded-lg shadow-lg border border-gray-700 z-50">
           {toast}
@@ -72,7 +81,7 @@ export default function CaseDetail() {
       )}
 
       {/* Case selector */}
-      <div className="flex items-center gap-3 mb-5">
+      <div className="flex flex-wrap items-center gap-3 mb-5">
         <label className="text-sm text-gray-400 shrink-0">Case 选择：</label>
         <select
           value={selectedCase}
@@ -85,10 +94,17 @@ export default function CaseDetail() {
             </option>
           ))}
         </select>
-        <div className="flex items-center gap-2 ml-2">
+        <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500">Assigned:</span>
           <span className="text-xs text-indigo-300">{caseData?.assignedAgent}</span>
         </div>
+        {caseData && (
+          <span className={`text-xs px-2 py-0.5 rounded-full ${
+            caseData.risk === 'High' ? 'bg-red-900/30 text-red-400' :
+            caseData.risk === 'Medium' ? 'bg-yellow-900/30 text-yellow-400' :
+            'bg-green-900/30 text-green-400'
+          }`}>{caseData.risk} Risk</span>
+        )}
         {streaming && (
           <span className="text-xs text-indigo-400 flex items-center gap-1 ml-auto">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse inline-block"></span>
@@ -97,23 +113,23 @@ export default function CaseDetail() {
         )}
       </div>
 
-      {/* Main split layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 h-[calc(100vh-200px)]">
+      {/* Main split layout — use min-h instead of fixed calc height */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* LEFT: Chain of thought */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 overflow-y-auto">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 min-h-96">
           <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-800">
             <span>🧠</span>
             <span className="font-semibold text-white text-sm">思维链 (Chain of Thought)</span>
+            <span className="ml-auto text-xs text-gray-600">{visibleSteps.length}/{steps.length} steps</span>
           </div>
 
           <div className="space-y-3">
             {visibleSteps.map((step, idx) => {
-              const rc = RESULT_CONFIG[step.result]
+              const rc = RESULT_CONFIG[step.result] || RESULT_CONFIG.pass
               return (
                 <div
                   key={step.step}
-                  className={`border rounded-lg p-3 ${rc.bg} animate-fade-in`}
-                  style={{ animationDelay: `${idx * 0.1}s` }}
+                  className={`border rounded-lg p-3 ${rc.bg}`}
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-mono text-gray-500">Step {step.step}</span>
@@ -144,7 +160,7 @@ export default function CaseDetail() {
         </div>
 
         {/* RIGHT: Structured output */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 overflow-y-auto">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 min-h-96">
           <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-800">
             <span>📋</span>
             <span className="font-semibold text-white text-sm">结构化输出 (Structured Output)</span>
@@ -166,7 +182,7 @@ export default function CaseDetail() {
             <div className="space-y-2 mb-4">
               <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">调查结果</div>
               {visibleSteps.map(step => {
-                const rc = RESULT_CONFIG[step.result]
+                const rc = RESULT_CONFIG[step.result] || RESULT_CONFIG.pass
                 return (
                   <div key={step.step} className="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2">
                     <span className="text-sm text-gray-300">{step.icon} {step.title}</span>
@@ -174,6 +190,14 @@ export default function CaseDetail() {
                   </div>
                 )
               })}
+            </div>
+          )}
+
+          {/* Placeholder before streaming starts */}
+          {visibleSteps.length === 0 && !streaming && (
+            <div className="text-gray-600 text-sm text-center py-12">
+              <div className="text-4xl mb-3">📋</div>
+              <div>Waiting for analysis...</div>
             </div>
           )}
 

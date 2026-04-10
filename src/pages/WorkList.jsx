@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { INITIAL_AGENTS, CASES } from '../data/mockData'
 
-export default function WorkList() {
+export default function WorkList({ onCaseClick }) {
   const [agents, setAgents] = useState(INITIAL_AGENTS)
   const [filter, setFilter] = useState('all')
 
@@ -31,6 +31,12 @@ export default function WorkList() {
     busy: { dot: 'bg-yellow-400', badge: 'bg-yellow-900/30 text-yellow-400 border-yellow-800/50', label: '● Busy', pulse: false },
     alert: { dot: 'bg-red-500', badge: 'bg-red-900/30 text-red-400 border-red-800/50', label: '● Needs Attention', pulse: true },
   }
+
+  // Cases assigned to agents
+  const agentCaseMap = {}
+  agents.forEach(a => {
+    if (a.currentCase) agentCaseMap[a.id] = a.currentCase
+  })
 
   return (
     <div className="p-6 max-w-6xl">
@@ -74,6 +80,11 @@ export default function WorkList() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map(agent => {
           const sc = statusConfig[agent.status] || statusConfig.idle
+          const caseId = agentCaseMap[agent.id]
+          // Find a matching real case to link to
+          const linkedCase = caseId
+            ? (CASES.find(c => c.id === caseId) ? caseId : CASES[0]?.id)
+            : null
           return (
             <div key={agent.id} className={`bg-gray-900 border rounded-xl p-5 transition-all ${
               agent.status === 'alert' ? 'border-red-800 shadow-red-900/20 shadow-lg' : 'border-gray-800'
@@ -101,11 +112,20 @@ export default function WorkList() {
                 ))}
               </div>
 
-              {/* Current case */}
+              {/* Current case — clickable if there's a linked case */}
               <div className="bg-gray-800/50 rounded-lg p-3 mb-3">
                 <div className="text-xs text-gray-500 mb-1">Current Case</div>
-                {agent.currentCase ? (
-                  <div className="text-sm font-mono text-indigo-300">{agent.currentCase}</div>
+                {caseId ? (
+                  linkedCase ? (
+                    <button
+                      onClick={() => onCaseClick && onCaseClick(linkedCase)}
+                      className="text-sm font-mono text-indigo-300 hover:text-indigo-200 hover:underline transition-colors text-left"
+                    >
+                      {caseId} →
+                    </button>
+                  ) : (
+                    <div className="text-sm font-mono text-indigo-300">{caseId}</div>
+                  )
                 ) : (
                   <div className="text-sm text-gray-600 italic">No active case</div>
                 )}
@@ -128,9 +148,63 @@ export default function WorkList() {
                   <div className="text-xs text-gray-500">{agent.workMode}</div>
                 </div>
               </div>
+
+              {/* View case detail button */}
+              {linkedCase && (
+                <button
+                  onClick={() => onCaseClick && onCaseClick(linkedCase)}
+                  className="mt-3 w-full text-xs py-1.5 rounded-lg bg-indigo-900/30 hover:bg-indigo-800/40 border border-indigo-800/50 text-indigo-400 hover:text-indigo-300 transition-colors"
+                >
+                  🔍 View Case Detail
+                </button>
+              )}
             </div>
           )
         })}
+      </div>
+
+      {/* Case Queue Table */}
+      <div className="mt-8">
+        <h3 className="text-sm font-semibold text-gray-300 mb-3">📋 Pending Cases Queue</h3>
+        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-800 text-xs text-gray-500">
+                <th className="text-left px-4 py-3">Case ID</th>
+                <th className="text-left px-4 py-3">Client</th>
+                <th className="text-left px-4 py-3">Type</th>
+                <th className="text-left px-4 py-3">Risk</th>
+                <th className="text-left px-4 py-3">Assigned</th>
+                <th className="text-left px-4 py-3">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {CASES.map((c, i) => (
+                <tr key={c.id} className={`border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors ${i === CASES.length - 1 ? 'border-0' : ''}`}>
+                  <td className="px-4 py-3 font-mono text-indigo-300 text-xs">{c.id}</td>
+                  <td className="px-4 py-3 text-gray-300">{c.client}</td>
+                  <td className="px-4 py-3 text-gray-400 text-xs">{c.type}</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      c.risk === 'High' ? 'bg-red-900/30 text-red-400' :
+                      c.risk === 'Medium' ? 'bg-yellow-900/30 text-yellow-400' :
+                      'bg-green-900/30 text-green-400'
+                    }`}>{c.risk}</span>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-indigo-300">{c.assignedAgent}</td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => onCaseClick && onCaseClick(c.id)}
+                      className="text-xs px-3 py-1 rounded-lg bg-gray-800 hover:bg-indigo-900/40 border border-gray-700 hover:border-indigo-700 text-gray-400 hover:text-indigo-300 transition-colors"
+                    >
+                      Review →
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )
