@@ -73,7 +73,7 @@ export default function CaseDetail({ initialCaseId }) {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 h-full flex flex-col">
       {toast && (
         <div className="fixed top-4 right-4 bg-gray-800 text-white text-sm px-4 py-2.5 rounded-lg shadow-lg border border-gray-700 z-50">
           {toast}
@@ -113,10 +113,10 @@ export default function CaseDetail({ initialCaseId }) {
         )}
       </div>
 
-      {/* Main split layout — use min-h instead of fixed calc height */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {/* Main split layout — fill remaining viewport, both panels scroll independently */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 flex-1 min-h-0">
         {/* LEFT: Chain of thought */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 min-h-96">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 overflow-y-auto">
           <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-800">
             <span>🧠</span>
             <span className="font-semibold text-white text-sm">思维链 (Chain of Thought)</span>
@@ -160,7 +160,7 @@ export default function CaseDetail({ initialCaseId }) {
         </div>
 
         {/* RIGHT: Structured output */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 min-h-96">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 overflow-y-auto">
           <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-800">
             <span>📋</span>
             <span className="font-semibold text-white text-sm">结构化输出 (Structured Output)</span>
