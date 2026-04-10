@@ -2,6 +2,6 @@ import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  base: '/compliance-agent-platform/',
+  base: '/x-men/',
   plugins: [tailwindcss()],
 })
