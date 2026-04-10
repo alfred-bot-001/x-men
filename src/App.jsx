@@ -30,7 +30,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span className="text-2xl">🛡️</span>
             <div>
-              <div className="font-bold text-white text-sm">ComplianceOps</div>
+              <div className="font-bold text-white text-sm">X-Men</div>
               <div className="text-xs text-gray-400">FCMI Platform</div>
             </div>
           </div>

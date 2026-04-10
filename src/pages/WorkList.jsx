@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react'
 import { INITIAL_AGENTS, CASES } from '../data/mockData'
 
+function AgentAvatar({ agent }) {
+  if (agent.avatarUrl) {
+    return (
+      <img
+        src={agent.avatarUrl}
+        alt={agent.name}
+        className="w-14 h-14 rounded-full object-cover border-2 border-gray-700"
+      />
+    )
+  }
+  return <div className="w-14 h-14 rounded-full bg-indigo-900 flex items-center justify-center text-3xl border-2 border-gray-700">{agent.avatar}</div>
+}
+
 export default function WorkList({ onCaseClick }) {
   const [agents, setAgents] = useState(INITIAL_AGENTS)
   const [filter, setFilter] = useState('all')
@@ -92,9 +105,9 @@ export default function WorkList({ onCaseClick }) {
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="text-4xl">{agent.avatar}</div>
-                    <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-gray-900 ${sc.dot} ${sc.pulse ? 'animate-pulse' : ''}`}></div>
+                  <div className="relative shrink-0">
+                    <AgentAvatar agent={agent} />
+                    <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-gray-900 ${sc.dot} ${sc.pulse ? 'animate-pulse' : ''}`}></div>
                   </div>
                   <div>
                     <div className="font-semibold text-white text-sm">{agent.name}</div>

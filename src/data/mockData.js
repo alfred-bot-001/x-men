@@ -8,13 +8,25 @@ export const SKILLS_LIST = [
   'Name Screening L2',
 ]
 
-export const AVATARS = ['🤖', '🦾', '🧠', '💡', '⚡', '🔮']
+// X-Men character avatars (Marvel public image URLs via Wikipedia)
+export const XMEN_AVATARS = [
+  { id: 'wolverine',  name: 'Wolverine',  url: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/97/Wolverine_Mainstay.jpg/220px-Wolverine_Mainstay.jpg' },
+  { id: 'storm',      name: 'Storm',      url: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/StormXMen.jpg/220px-StormXMen.jpg' },
+  { id: 'cyclops',    name: 'Cyclops',    url: 'https://upload.wikimedia.org/wikipedia/en/thumb/0/0b/CyclopsJohnCassaday.jpg/220px-CyclopsJohnCassaday.jpg' },
+  { id: 'magneto',    name: 'Magneto',    url: 'https://upload.wikimedia.org/wikipedia/en/thumb/3/3a/Magneto_Marvel_Comics.jpg/220px-Magneto_Marvel_Comics.jpg' },
+  { id: 'rogue',      name: 'Rogue',      url: 'https://upload.wikimedia.org/wikipedia/en/thumb/d/da/RogueMStrike.jpg/220px-RogueMStrike.jpg' },
+  { id: 'jean-grey',  name: 'Jean Grey',  url: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b8/XMen_Jean_Grey.jpg/220px-XMen_Jean_Grey.jpg' },
+]
+
+// Fallback emoji avatars for new agent creation modal
+export const AVATARS = ['🐺', '⚡', '🔴', '🧲', '💚', '🔥']
 
 export const INITIAL_AGENTS = [
   {
     id: 'agent-001',
-    name: 'EDD-Agent-001',
-    avatar: '🤖',
+    name: 'Wolverine',
+    avatar: 'wolverine',
+    avatarUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/97/Wolverine_Mainstay.jpg/220px-Wolverine_Mainstay.jpg',
     skills: ['EDD-KYC Review', 'EDD-SOF Review'],
     workMode: 'auto',
     maxConcurrent: 2,
@@ -25,8 +37,9 @@ export const INITIAL_AGENTS = [
   },
   {
     id: 'agent-002',
-    name: 'Screening-Agent-002',
-    avatar: '🦾',
+    name: 'Storm',
+    avatar: 'storm',
+    avatarUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/StormXMen.jpg/220px-StormXMen.jpg',
     skills: ['Name Screening L1', 'Name Screening L2'],
     workMode: 'auto',
     maxConcurrent: 3,
@@ -37,8 +50,9 @@ export const INITIAL_AGENTS = [
   },
   {
     id: 'agent-003',
-    name: 'ML-Agent-003',
-    avatar: '🧠',
+    name: 'Cyclops',
+    avatar: 'cyclops',
+    avatarUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/0/0b/CyclopsJohnCassaday.jpg/220px-CyclopsJohnCassaday.jpg',
     skills: ['ML Alert Review'],
     workMode: 'manual',
     maxConcurrent: 1,
@@ -54,7 +68,7 @@ export const CASES = [
     id: 'CASE-2026-0042',
     type: 'EDD',
     client: 'Alexander Petrov',
-    assignedAgent: 'EDD-Agent-001',
+    assignedAgent: 'Wolverine',
     risk: 'high',
     flag: 'pep',
     status: 'pending-review',
@@ -63,7 +77,7 @@ export const CASES = [
     id: 'CASE-2026-0043',
     type: 'Screening',
     client: 'Wei Zhang',
-    assignedAgent: 'Screening-Agent-002',
+    assignedAgent: 'Storm',
     risk: 'low',
     flag: 'clean',
     status: 'approved',
@@ -72,7 +86,7 @@ export const CASES = [
     id: 'CASE-2026-0044',
     type: 'ML Alert',
     client: 'Maria Santos',
-    assignedAgent: 'ML-Agent-003',
+    assignedAgent: 'Cyclops',
     risk: 'medium',
     flag: 'sof-warning',
     status: 'rfi-sent',
@@ -81,7 +95,7 @@ export const CASES = [
     id: 'CASE-2026-0045',
     type: 'EDD',
     client: 'David Okafor',
-    assignedAgent: 'EDD-Agent-001',
+    assignedAgent: 'Wolverine',
     risk: 'low',
     flag: 'clean',
     status: 'approved',
@@ -90,7 +104,7 @@ export const CASES = [
     id: 'CASE-2026-0046',
     type: 'Screening',
     client: 'Yuki Tanaka',
-    assignedAgent: 'Screening-Agent-002',
+    assignedAgent: 'Storm',
     risk: 'high',
     flag: 'escalated',
     status: 'escalated',
@@ -223,11 +237,11 @@ export const DASHBOARD_DATA = {
     accuracy: 93.7,
   },
   casesPerAgent: [
-    { agent: 'EDD-001', cases: 12 },
-    { agent: 'Screening-002', cases: 18 },
-    { agent: 'ML-003', cases: 8 },
-    { agent: 'EDD-004', cases: 14 },
-    { agent: 'Screening-005', cases: 6 },
+    { agent: 'Wolverine', cases: 12 },
+    { agent: 'Storm', cases: 18 },
+    { agent: 'Cyclops', cases: 8 },
+    { agent: 'Magneto', cases: 14 },
+    { agent: 'Rogue', cases: 6 },
   ],
   hourlyVolume: Array.from({ length: 24 }, (_, i) => ({
     hour: `${String(i).padStart(2, '0')}:00`,
@@ -240,10 +254,10 @@ export const DASHBOARD_DATA = {
     { name: 'Rejected', value: 5, color: '#ef4444' },
   ],
   agentPerformance: [
-    { name: 'EDD-Agent-001', cases: 12, accuracy: 94.2, escalationRate: 8.3, avgTime: '5.1 min' },
-    { name: 'Screening-Agent-002', cases: 18, accuracy: 96.5, escalationRate: 5.5, avgTime: '3.2 min' },
-    { name: 'ML-Agent-003', cases: 8, accuracy: 91.8, escalationRate: 12.5, avgTime: '6.8 min' },
-    { name: 'EDD-Agent-004', cases: 14, accuracy: 93.1, escalationRate: 7.1, avgTime: '4.9 min' },
-    { name: 'Screening-Agent-005', cases: 6, accuracy: 95.0, escalationRate: 16.7, avgTime: '3.5 min' },
+    { name: 'Wolverine',  cases: 12, accuracy: 94.2, escalationRate: 8.3,  avgTime: '5.1 min' },
+    { name: 'Storm',      cases: 18, accuracy: 96.5, escalationRate: 5.5,  avgTime: '3.2 min' },
+    { name: 'Cyclops',    cases: 8,  accuracy: 91.8, escalationRate: 12.5, avgTime: '6.8 min' },
+    { name: 'Magneto',    cases: 14, accuracy: 93.1, escalationRate: 7.1,  avgTime: '4.9 min' },
+    { name: 'Rogue',      cases: 6,  accuracy: 95.0, escalationRate: 16.7, avgTime: '3.5 min' },
   ],
 }
